@@ -26,10 +26,5 @@ return {
 		require("mason-tool-installer").setup({
 			ensure_installed = { "lua_ls" }
 		})
-
-		local lsps = {
-			"lua_ls",
-			"godot"
-		}
 	end,
 }
