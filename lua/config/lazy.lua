@@ -33,11 +33,12 @@ end
 require("lazy").setup({
 	spec = {
 		{ "dgrco/hearthlight.nvim" },
+		{ "catppuccin/nvim" },
+
 
 		{ import = "plugins" },
 	},
-
-	install = { colorscheme = { "hearthlight" } },
+	colorscheme = "catppuccin-mocha",
 
 	-- automatically check for plugin updates
 	checker = { enabled = true },
@@ -48,4 +49,4 @@ vim.keymap.set("n", "cj", "<C-w>j")
 vim.keymap.set("n", "ck", "<C-w>k")
 vim.keymap.set("n", "cl", "<C-w>l")
 
-vim.cmd("colorscheme hearthlight")
+vim.cmd("colorscheme catppuccin-mocha")

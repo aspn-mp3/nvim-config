@@ -1,13 +1,22 @@
 vim.api.nvim_create_autocmd('LspAttach', {
-	group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+	group = vim.api.nvim_create_augroup('my.lsp', {}),
 	callback = function(ev)
-		-- Buffer-local autocommand for formatting on save
-		vim.api.nvim_create_autocmd('BufWritePre', {
-			buffer = ev.buf,
-			callback = function()
-				vim.lsp.buf.format({ async = false })
-			end,
-		})
+		local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+
+		if client:supports_method('textDocument/completion') then
+			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+		end
+
+		if not client:supports_method('textDocument/willSaveWaitUntil')
+			and client:supports_method('textDocument/formatting') then
+			vim.api.nvim_create_autocmd('BufWritePre', {
+				group = vim.api.nvim_create_augroup('my.lsp', { clear = false }),
+				buffer = ev.buf,
+				callback = function()
+					vim.lsp.buf.format({ bufnr = ev.buf, id = client.id, timeout_ms = 1000 })
+				end,
+			})
+		end
 	end,
 })
 
@@ -26,6 +35,12 @@ return {
 		require("mason-tool-installer").setup({
 			ensure_installed = { "lua_ls" }
 		})
+
+		vim.opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
+
 		vim.keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "View line error" })
+
+		vim.keymap.set("i", "<C-j>", "<C-n>")
+		vim.keymap.set("i", "<C-k>", "<C-p>")
 	end,
 }

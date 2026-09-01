@@ -70,7 +70,6 @@ return {
 			vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Open"))
 			vim.keymap.set("n", "<2-RightMouse>", api.tree.change_root_to_node, opts("CD"))
 			-- END_ON_ATTACH_DEFAULT
-			--
 		end
 
 		vim.keymap.set("n", "<Leader>e", ":NvimTreeToggle<CR>", { desc = "nvim-tree: Toggle Tree" })
