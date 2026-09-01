@@ -26,5 +26,6 @@ return {
 		require("mason-tool-installer").setup({
 			ensure_installed = { "lua_ls" }
 		})
+		vim.keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "View line error" })
 	end,
 }

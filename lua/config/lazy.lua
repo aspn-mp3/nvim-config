@@ -29,11 +29,6 @@ for key, value in pairs(opts) do
 	vim.opt[key] = value
 end
 
-vim.keymap.set("n", "<C-c>h", "<C-w>h")
-vim.keymap.set("n", "<C-c>j", "<C-w>j")
-vim.keymap.set("n", "<C-c>k", "<C-w>k")
-vim.keymap.set("n", "<C-c>l", "<C-w>l")
-
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
@@ -47,5 +42,10 @@ require("lazy").setup({
 	-- automatically check for plugin updates
 	checker = { enabled = true },
 })
+
+vim.keymap.set("n", "ch", "<C-w>h")
+vim.keymap.set("n", "cj", "<C-w>j")
+vim.keymap.set("n", "ck", "<C-w>k")
+vim.keymap.set("n", "cl", "<C-w>l")
 
 vim.cmd("colorscheme hearthlight")
