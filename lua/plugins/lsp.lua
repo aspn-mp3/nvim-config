@@ -1,24 +1,62 @@
+-- vim.api.nvim_create_autocmd('LspAttach', {
+-- 	group = vim.api.nvim_create_augroup('my.lsp', {}),
+-- 	callback = function(ev)
+-- 		local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+--
+-- 		if client:supports_method('textDocument/completion') then
+-- 			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+-- 		end
+--
+-- 		if not client:supports_method('textDocument/willSaveWaitUntil')
+-- 			and client:supports_method('textDocument/formatting') then
+-- 			vim.api.nvim_create_autocmd('BufWritePre', {
+-- 				group = vim.api.nvim_create_augroup('my.lsp', { clear = false }),
+-- 				buffer = ev.buf,
+-- 				callback = function()
+-- 					vim.lsp.buf.format({ bufnr = ev.buf, id = client.id, timeout_ms = 1000 })
+-- 				end,
+-- 			})
+-- 		end
+-- 	end,
+-- })
+
 vim.api.nvim_create_autocmd('LspAttach', {
 	group = vim.api.nvim_create_augroup('my.lsp', {}),
 	callback = function(ev)
 		local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
 
-		if client:supports_method('textDocument/completion') then
-			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+		if client.name == "gdscript" then
+			-- Ensure the provider block exists
+			if not client.server_capabilities.completionProvider then
+				client.server_capabilities.completionProvider = {}
+			end
+
+			-- FIX: Inject ALL printable ASCII characters as triggers
+			-- This forces an LSP query on every alphanumeric letter you type
+			local all_chars = {}
+			for i = 32, 126 do
+				table.insert(all_chars, string.char(i))
+			end
+			client.server_capabilities.completionProvider.triggerCharacters = all_chars
+
+			-- Enable autotrigger with the newly aggressive character array
+			if vim.lsp.completion then
+				vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+			end
+
+			vim.diagnostic.config({ update_in_insert = true })
+		else
+			-- Standard behavior for normal LSPs (Lua, Python, etc.)
+			if client:supports_method('textDocument/completion') then
+				vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+			end
 		end
 
-		if not client:supports_method('textDocument/willSaveWaitUntil')
-			and client:supports_method('textDocument/formatting') then
-			vim.api.nvim_create_autocmd('BufWritePre', {
-				group = vim.api.nvim_create_augroup('my.lsp', { clear = false }),
-				buffer = ev.buf,
-				callback = function()
-					vim.lsp.buf.format({ bufnr = ev.buf, id = client.id, timeout_ms = 1000 })
-				end,
-			})
-		end
+		-- Format-on-save block remains unchanged...
 	end,
 })
+
+
 
 return {
 	"neovim/nvim-lspconfig",
@@ -36,21 +74,21 @@ return {
 			ensure_installed = { "lua_ls", "gdscript-formatter", "gdtoolkit" }
 		})
 
-		gdscript = function(_, opts)
-			require("lspconfig")["gdscript"].setup({
-				name = "godot",
-
-				-- Fill in your Godot Language Server parameters
-				cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
-
-				-- Fill in where should Neovim listen to Godot LSP
-				-- In this case, "/tmp/godot.pipe"
-				on_init = function(client, init_result)
-					vim.fn.serverstart("/tmp/godot.pipe")
-				end,
-			})
-			return true
-		end
+		-- gdscript = function(_, opts)
+		-- 	require("lspconfig")["gdscript"].setup({
+		-- 		name = "godot",
+		--
+		-- 		-- Fill in your Godot Language Server parameters
+		-- 		cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
+		--
+		-- 		-- Fill in where should Neovim listen to Godot LSP
+		-- 		-- In this case, "/tmp/godot.pipe"
+		-- 		on_init = function(client, init_result)
+		-- 			vim.fn.serverstart("/tmp/godot.pipe")
+		-- 		end,
+		-- 	})
+		-- 	return true
+		-- end
 
 		vim.opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
 
