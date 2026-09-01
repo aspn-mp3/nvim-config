@@ -33,8 +33,24 @@ return {
 		require("mason").setup()
 		require("mason-lspconfig").setup()
 		require("mason-tool-installer").setup({
-			ensure_installed = { "lua_ls" }
+			ensure_installed = { "lua_ls", "gdscript-formatter", "gdtoolkit" }
 		})
+
+		gdscript = function(_, opts)
+			require("lspconfig")["gdscript"].setup({
+				name = "godot",
+
+				-- Fill in your Godot Language Server parameters
+				cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
+
+				-- Fill in where should Neovim listen to Godot LSP
+				-- In this case, "/tmp/godot.pipe"
+				on_init = function(client, init_result)
+					vim.fn.serverstart("/tmp/godot.pipe")
+				end,
+			})
+			return true
+		end
 
 		vim.opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
 

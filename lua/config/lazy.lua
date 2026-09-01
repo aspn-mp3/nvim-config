@@ -21,8 +21,10 @@ vim.g.mapleader = "\\"
 
 local opts = {
 	number = true,
+	numberwidth = 4,
 	tabstop = 4,
 	shiftwidth = 4,
+	termguicolors = true,
 }
 
 for key, value in pairs(opts) do
