@@ -70,7 +70,7 @@ return {
 
 		vim.opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
 
-		vim.keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "View line error" })
+		vim.keymap.set('n', '<C-k>', vim.diagnostic.open_float, { desc = "View line error" })
 
 		vim.keymap.set("i", "<C-j>", "<C-n>")
 		vim.keymap.set("i", "<C-k>", "<C-p>")

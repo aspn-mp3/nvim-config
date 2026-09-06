@@ -24,6 +24,7 @@ local opts = {
 	numberwidth = 4,
 	tabstop = 4,
 	shiftwidth = 4,
+	scrolloff = 12,
 	termguicolors = true,
 }
 
