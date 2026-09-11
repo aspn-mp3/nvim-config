@@ -3,7 +3,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
 	callback = function(ev)
 		local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
 
-		if client.name == "gdscript" then
+		vim.api.nvim_create_autocmd("BufWritePre", {
+			buffer = ev.buf,
+			callback = function()
+				-- Sync formatting blocks the editor briefly to guarantee
+				-- the file formats completely before it flushes to disk.
+				vim.lsp.buf.format({ async = false, id = ev.data.client_id })
+			end,
+		})
+
+		if client.name == "gdscript" or client.name == "cssls" then
 			-- Ensure the provider block exists
 			if not client.server_capabilities.completionProvider then
 				client.server_capabilities.completionProvider = {}
@@ -49,26 +58,24 @@ return {
 		require("mason").setup()
 		require("mason-lspconfig").setup()
 		require("mason-tool-installer").setup({
-			ensure_installed = { "lua_ls", "gdscript-formatter", "gdtoolkit" }
+			ensure_installed = {
+				"lua_ls",
+				"html",
+				"prettier",
+				"gdscript-formatter",
+				"gdtoolkit",
+			}
 		})
 
-		-- gdscript = function(_, opts)
-		-- 	require("lspconfig")["gdscript"].setup({
-		-- 		name = "godot",
-		--
-		-- 		-- Fill in your Godot Language Server parameters
-		-- 		cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
-		--
-		-- 		-- Fill in where should Neovim listen to Godot LSP
-		-- 		-- In this case, "/tmp/godot.pipe"
-		-- 		on_init = function(client, init_result)
-		-- 			vim.fn.serverstart("/tmp/godot.pipe")
-		-- 		end,
-		-- 	})
-		-- 	return true
-		-- end
-
 		vim.opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
+
+		--Enable (broadcasting) snippet capability for completion
+		local capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+		vim.lsp.config('cssls', {
+			capabilities = capabilities,
+		})
 
 		vim.keymap.set('n', '<C-k>', vim.diagnostic.open_float, { desc = "View line error" })
 
